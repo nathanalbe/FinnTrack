@@ -15,7 +15,9 @@ pycodestyle==2.10.0
 pytest==7.4.0
 Werkzeug==2.3.6
 urllib3==2.0.3
-plaid-python==10.6.0
+plaid-python
 matplotlib==3.7.1
 plotly==5.13.1
 alpha_vantage==2.3.1
+flask_migrate
+python-dotenv
