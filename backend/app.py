@@ -38,7 +38,7 @@ login_manager.login_view = 'login'
 
 app.config['PLAID_CLIENT_ID'] = os.getenv('PLAID_CLIENT_ID')
 app.config['PLAID_SECRET'] = os.getenv('PLAID_SECRET')
-app.config['PLAID_ENV'] = 'sandbox'  # Change to 'development' or 'production' as needed
+app.config['PLAID_ENV'] = os.getenv('PLAID_ENV')  # Change to 'development' or 'production' as needed
 
 app.config['ALPHA_VANTAGE_API_KEY'] = 'your_alpha_vantage_api_key'
 
