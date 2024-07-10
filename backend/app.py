@@ -22,6 +22,9 @@ import plotly.graph_objs as go
 import json
 from forms import RegistrationForm, LoginForm, BudgetForm, SpendingForm, UpdateBudgetForm, UpdateSpendingForm
 from datetime import datetime, timedelta
+from dotenv import load_dotenv
+import os
+
 
 app = Flask(__name__, instance_relative_config=True)
 app.config['SECRET_KEY'] = '9c7f5ed4fee35fed7a039ddba384397f'
@@ -33,8 +36,8 @@ proxied = FlaskBehindProxy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
-app.config['PLAID_CLIENT_ID'] = 'Your plaid client id'
-app.config['PLAID_SECRET'] = 'Your Plaid secret key'
+app.config['PLAID_CLIENT_ID'] = os.getenv('PLAID_CLIENT_ID')
+app.config['PLAID_SECRET'] = os.getenv('PLAID_SECRET')
 app.config['PLAID_ENV'] = 'sandbox'  # Change to 'development' or 'production' as needed
 
 app.config['ALPHA_VANTAGE_API_KEY'] = 'your_alpha_vantage_api_key'
