@@ -19,3 +19,4 @@ plaid-python==10.6.0
 matplotlib==3.7.1
 plotly==5.13.1
 alpha_vantage==2.3.1
+openai==24.0
