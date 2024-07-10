@@ -1,0 +1,13 @@
+{% extends "base.html" %} {% block title %}Stock Data{% endblock %} {% block
+content %}
+<div class="container">
+  <h1>S&P 500 Price</h1>
+  <div id="chart"></div>
+</div>
+
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script>
+  var graphs = {{ graphJSON | safe }};
+  Plotly.newPlot('chart', graphs.data, graphs.layout);
+</script>
+{% endblock %}
