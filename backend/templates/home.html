@@ -1,13 +1,55 @@
-{% extends "base.html" %} {% block title %} Home {% endblock %} {% block content
-%}
+{% extends "base.html" %} 
+{% block title %} Home {% endblock %} 
+{% block content %}
+<style>
+  .container, body {
+    background: linear-gradient(to right, #141e30, #243b55); 
+    color: white; 
+    padding: 20px; 
+    border-radius: 10px; 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+  }
+
+  h1 {
+    font-size: 2.5em;
+    margin-bottom: 20px;
+  }
+
+  h2 {
+    margin-top: 40px;
+    font-size: 2em;
+  }
+
+  p {
+    font-size: 1.2em;
+  }
+
+  #graph-div-pie, #graph-div-bar, #graph-div-goal {
+    background-color: rgba(255, 255, 255, 0.1); 
+    border-radius: 10px; 
+    padding: 20px; 
+    margin: 20px 0; 
+  }
+
+  #graph-div-pie, #graph-div-bar {
+    width: 48%; 
+    height: 400px; 
+    display: inline-block; 
+    vertical-align: top;
+  }
+
+  #graph-div-goal {
+    width: 100%; /* Full width */
+    height: 400px; /* Fixed height */
+    display: inline-block; 
+    margin-top: 20px;
+  }
+</style>
 <div class="container">
   <h1>Welcome, {{ current_user.username }}!</h1>
-  <div id="graph-div-pie" style="width: 45%; display: inline-block"></div>
-  <div id="graph-div-bar" style="width: 45%; display: inline-block"></div>
-  <div
-    id="graph-div-goal"
-    style="width: 90%; display: inline-block; margin-top: 20px"
-  ></div>
+  <div id="graph-div-pie"></div>
+  <div id="graph-div-bar"></div>
+  <div id="graph-div-goal"></div>
   <h2>Budget Overview</h2>
   <p>Total Budget: ${{ total_budget }}</p>
   <p>Total Spending: ${{ total_spending }}</p>
