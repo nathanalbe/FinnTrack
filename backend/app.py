@@ -94,7 +94,7 @@ def home():
 @app.route("/chat")
 @login_required
 def chat():
-    return render_template('cb.html', chat_messages = chat_messages)
+    return render_template('cb.html')
 
 @app.route("/chat", methods=['POST'])
 @login_required
