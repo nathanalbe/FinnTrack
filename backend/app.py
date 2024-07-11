@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 import plotly
 import plotly.graph_objs as go
 import json
-from forms import RegistrationForm, LoginForm, BudgetForm, SpendingForm, UpdateBudgetForm, UpdateSpendingForm, StockSearchForm
+from forms import RegistrationForm, LoginForm, BudgetForm, SpendingForm, UpdateBudgetForm, UpdateSpendingForm, StockSearchForm, InvestmentForm
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
 import os
@@ -36,11 +36,11 @@ proxied = FlaskBehindProxy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
-app.config['PLAID_CLIENT_ID'] = ''
-app.config['PLAID_SECRET'] = ''
+app.config['PLAID_CLIENT_ID'] = '668d8cb09e60dd001a327cac'
+app.config['PLAID_SECRET'] = 'c04391d0ba0333547cc2a2358aab0'
 app.config['PLAID_ENV'] = 'sandbox'  # Change to 'development' or 'production' as needed
 
-app.config['ALPHA_VANTAGE_API_KEY'] = ''
+app.config['ALPHA_VANTAGE_API_KEY'] = 'PY07EMA4LSHGSLIH'
 
 # Define your models
 class User(db.Model, UserMixin):
@@ -74,6 +74,15 @@ class Spending(db.Model):
     description = db.Column(db.String(100), nullable=False)
     amount = db.Column(db.Float, nullable=False)
     date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+
+class Investment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    symbol = db.Column(db.String(10), nullable=False)  # Stock symbol
+    quantity = db.Column(db.Integer, nullable=False)
+    purchase_price = db.Column(db.Float, nullable=False)
+    purchase_date = db.Column(db.Date, nullable=False)
+
 
 with app.app_context():
     db.create_all()
@@ -335,6 +344,26 @@ def stocks():
             return redirect(url_for('stocks'))
             
     return render_template('stocks.html', symbol=symbol, graphJSON=graphJSON, form=form)
+
+@app.route("/investments", methods=['GET', 'POST'])
+@login_required
+def investments():
+    form = InvestmentForm()
+    if form.validate_on_submit():
+        investment = Investment(
+            user_id=current_user.id,
+            symbol=form.symbol.data,
+            quantity=form.quantity.data,
+            purchase_price=form.purchase_price.data,
+            purchase_date=form.purchase_date.data
+        )
+        db.session.add(investment)
+        db.session.commit()
+        flash('Investment added!', 'success')
+        return redirect(url_for('home'))  # Redirect to home page after adding
+    investments = Investment.query.filter_by(user_id=current_user.id).all()
+    return render_template('investments.html', title='Investments', form=form, investments=investments)
+
 
 if __name__ == '__main__':
     app.run(debug=True)

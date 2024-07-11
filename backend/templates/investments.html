@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Display form for adding investments -->
+<form method="POST" action="{{ url_for('investments') }}">
+    {{ form.hidden_tag() }}
+    <!-- Form fields for adding investments -->
+    {{ form.symbol.label }} {{ form.symbol() }} <br>
+    {{ form.quantity.label }} {{ form.quantity() }} <br>
+    {{ form.purchase_price.label }} {{ form.purchase_price() }} <br>
+    {{ form.purchase_date.label }} {{ form.purchase_date() }} <br>
+    {{ form.submit() }}
+</form>
+<div class="container">
+    <h1>Investments</h1>
+    {% if investments %}
+        <ul>
+            {% for investment in investments %}
+                {% if investment.quantity == 1 %}
+                    <li>{{ investment.symbol }} - {{ investment.quantity }} share purchased on {{ investment.purchase_date }}</li>
+                {% else %}
+                    <li>{{ investment.symbol }} - {{ investment.quantity }} shares purchased on {{ investment.purchase_date }}</li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No investments found.</p>
+    {% endif %}
+</div>
+{% endblock%}

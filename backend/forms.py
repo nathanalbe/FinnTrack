@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, BooleanField, FloatField
+from wtforms import StringField, PasswordField, SubmitField, BooleanField, FloatField, IntegerField, DateField
 from wtforms.validators import DataRequired, Length, Email, EqualTo
 
 class RegistrationForm(FlaskForm):
@@ -38,3 +38,11 @@ class UpdateSpendingForm(FlaskForm):
 class StockSearchForm(FlaskForm):
     symbol = StringField('Stock Symbol', validators=[DataRequired(), Length(min=1, max=10)])
     submit = SubmitField('Search')
+
+class InvestmentForm(FlaskForm):
+    symbol = StringField('Stock Symbol', validators=[DataRequired()])
+    quantity = IntegerField('Quantity', validators=[DataRequired()])
+    purchase_price = FloatField('Purchase Price', validators=[DataRequired()])
+    purchase_date = DateField('Purchase Date', validators=[DataRequired()])
+    submit = SubmitField('Add Investment')
+
