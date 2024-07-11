@@ -1,13 +1,22 @@
+<<<<<<< HEAD
 import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 from flask import Flask, render_template, redirect, url_for, flash, request, jsonify
+=======
+import os
+from datetime import datetime, timedelta
+from flask import Flask, render_template, redirect, url_for, flash, request, jsonify, abort
+>>>>>>> origin/newbranch
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_behind_proxy import FlaskBehindProxy
 from flask_login import LoginManager, login_user, logout_user, login_required, UserMixin, current_user
 import plaid
+<<<<<<< HEAD
 import requests
+=======
+>>>>>>> origin/newbranch
 from plaid.api import plaid_api
 from plaid.model import link_token_create_request, link_token_create_request_user, products, country_code, item_public_token_exchange_request, transactions_get_request, transactions_get_request_options
 from plaid.configuration import Configuration
@@ -17,6 +26,7 @@ from flask_migrate import Migrate
 from alpha_vantage.timeseries import TimeSeries
 import matplotlib
 matplotlib.use('Agg')
+<<<<<<< HEAD
 import matplotlib.pyplot as plt
 import plotly
 import plotly.graph_objs as go
@@ -26,6 +36,17 @@ from datetime import datetime, timedelta
 from dotenv import load_dotenv
 import os
 
+=======
+import plotly
+import plotly.graph_objs as go
+import json
+from forms import RegistrationForm, LoginForm, BudgetForm, SpendingForm, UpdateBudgetForm, UpdateSpendingForm, FinancialGoalForm, UpdateFinancialGoalForm
+
+#from dotenv import load_dotenv
+
+# Load environment variables
+# load_dotenv()
+>>>>>>> origin/newbranch
 
 app = Flask(__name__, instance_relative_config=True)
 app.config['SECRET_KEY'] = '9c7f5ed4fee35fed7a039ddba384397f'
@@ -36,6 +57,7 @@ bcrypt = Bcrypt(app)
 proxied = FlaskBehindProxy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
+<<<<<<< HEAD
 
 app.config['PLAID_CLIENT_ID'] = ''
 app.config['PLAID_SECRET'] = ''
@@ -44,6 +66,14 @@ app.config['PLAID_ENV'] = 'sandbox'  # Change to 'development' or 'production' a
 app.config['ALPHA_VANTAGE_API_KEY'] = ''
 
 # Define your models
+=======
+app.config['PLAID_CLIENT_ID'] = 'client_id'
+app.config['PLAID_SECRET'] = 'secret_key'
+app.config['PLAID_ENV'] = 'sandbox'
+
+app.config['ALPHA_VANTAGE_API_KEY'] = os.getenv('ALPHA_VANTAGE_API_KEY')
+
+>>>>>>> origin/newbranch
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(20), unique=True, nullable=False)
@@ -52,6 +82,10 @@ class User(db.Model, UserMixin):
     plaid_access_token = db.Column(db.String(200), nullable=True)
     budgets = db.relationship('Budget', backref='owner', lazy=True)
     spendings = db.relationship('Spending', backref='spender', lazy=True)
+<<<<<<< HEAD
+=======
+    financial_goals = db.relationship('FinancialGoal', backref='owner', lazy=True)
+>>>>>>> origin/newbranch
 
     def get_id(self):
         return str(self.id)
@@ -76,6 +110,7 @@ class Spending(db.Model):
     amount = db.Column(db.Float, nullable=False)
     date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
+<<<<<<< HEAD
 class Investment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
@@ -83,6 +118,19 @@ class Investment(db.Model):
     quantity = db.Column(db.Numeric(precision=10, scale=2), nullable=False)
     purchase_price = db.Column(db.Float, nullable=False)
     purchase_date = db.Column(db.Date, nullable=False)
+=======
+class FinancialGoal(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    name = db.Column(db.String(100), nullable=False)
+    target_amount = db.Column(db.Float, nullable=False)
+    current_amount = db.Column(db.Float, nullable=False, default=0.0)
+    due_date = db.Column(db.DateTime, nullable=False)
+
+    def __repr__(self):
+        return f"FinancialGoal('{self.name}', '{self.target_amount}', '{self.current_amount}', '{self.due_date}')"
+
+>>>>>>> origin/newbranch
 
 
 with app.app_context():
@@ -90,12 +138,100 @@ with app.app_context():
 
 @login_manager.user_loader
 def load_user(user_id):
+<<<<<<< HEAD
     return User.query.get(int(user_id))
 
 @app.route("/")
 @app.route("/home")
 def home():
     return render_template('home.html')
+=======
+    return db.session.get(User, int(user_id))
+
+
+@app.route("/")
+@app.route("/home")
+@login_required
+def home():
+    budgets = Budget.query.filter_by(owner=current_user).all()
+    spendings = Spending.query.filter_by(spender=current_user).all()
+    goals = FinancialGoal.query.filter_by(user_id=current_user.id).all()
+
+    # Calculate total budget
+    total_budget = sum(budget.amount for budget in budgets)
+
+    # Calculate total spending
+    total_spending = sum(spending.amount for spending in spendings)
+
+    # Calculate remaining budget
+    remaining_budget = total_budget - total_spending
+
+    # Data for the pie chart
+    labels = ['Spending', 'Remaining Budget']
+    values = [total_spending, remaining_budget]
+    colors = ['#FF5733', '#33FF57']
+
+    # Create the pie chart
+    fig_pie = go.Figure(data=[go.Pie(labels=labels, values=values, marker=dict(colors=colors))])
+    fig_pie.update_layout(title='Budget vs Spending')
+
+    # Calculate weekly data
+    spendings_by_week = {}
+    now = datetime.now()
+    for spending in spendings:
+        week_start = spending.date - timedelta(days=spending.date.weekday())
+        week_start_str = week_start.strftime('%Y-%m-%d')
+        if week_start_str not in spendings_by_week:
+            spendings_by_week[week_start_str] = 0
+        spendings_by_week[week_start_str] += spending.amount
+
+    weekly_spendings = []
+    weekly_savings = []
+    weeks = []
+
+    for i in range(len(spendings_by_week)):
+        week_start_str = list(spendings_by_week.keys())[i]
+        week_spending = spendings_by_week[week_start_str]
+        week_saving = total_budget - week_spending
+        weekly_spendings.append(week_spending)
+        weekly_savings.append(week_saving)
+        weeks.append(f'Week {i + 1}')
+
+    # Create the bar chart
+    fig_bar = go.Figure()
+    fig_bar.add_trace(go.Bar(x=weeks, y=weekly_spendings, name='Weekly Spending', marker_color='blue'))
+    fig_bar.add_trace(go.Bar(x=weeks, y=weekly_savings, name='Weekly Savings', marker_color='green'))
+
+    fig_bar.update_layout(barmode='group', title='Weekly Spending and Savings')
+
+    # Prepare data for the financial goals progress chart
+    goal_names = [goal.name for goal in goals]
+    current_amounts = [goal.current_amount for goal in goals]
+    target_amounts = [goal.target_amount for goal in goals]
+
+    print("Financial Goals Data")
+    print("Goal Names: ", goal_names)
+    print("Current Amounts: ", current_amounts)
+    print("Target Amounts: ", target_amounts)
+
+    fig_goal = go.Figure(data=[
+        go.Bar(name='Current Amount', x=goal_names, y=current_amounts, marker_color='blue'),
+        go.Bar(name='Target Amount', x=goal_names, y=target_amounts, marker_color='green')
+    ])
+    fig_goal.update_layout(barmode='group', title='Financial Goals Progress', width=700, height=400)
+
+    graphJSON_pie = json.dumps(fig_pie, cls=plotly.utils.PlotlyJSONEncoder)
+    graphJSON_bar = json.dumps(fig_bar, cls=plotly.utils.PlotlyJSONEncoder)
+    graphJSON_goal = json.dumps(fig_goal, cls=plotly.utils.PlotlyJSONEncoder)
+
+    return render_template('home.html', 
+                           graphJSON_pie=graphJSON_pie, 
+                           graphJSON_bar=graphJSON_bar,
+                           graphJSON_goal=graphJSON_goal,
+                           total_budget=total_budget, 
+                           total_spending=total_spending, 
+                           remaining_budget=remaining_budget)
+>>>>>>> origin/newbranch
 
 @app.route("/register", methods=['GET', 'POST'])
 def register():
@@ -137,7 +273,11 @@ def budget():
         db.session.commit()
         flash('Budget added!', 'success')
         return redirect(url_for('budget'))
+<<<<<<< HEAD
     budgets = Budget.query.filter_by(owner=current_user)
+=======
+    budgets = Budget.query.filter_by(owner=current_user).all()
+>>>>>>> origin/newbranch
     return render_template('budget.html', title='Budget', form=form, budgets=budgets)
 
 @app.route("/budget/update/<int:budget_id>", methods=['GET', 'POST'])
@@ -179,7 +319,11 @@ def spending():
         db.session.commit()
         flash('Spending added!', 'success')
         return redirect(url_for('spending'))
+<<<<<<< HEAD
     spendings = Spending.query.filter_by(spender=current_user)
+=======
+    spendings = Spending.query.filter_by(spender=current_user).all()
+>>>>>>> origin/newbranch
     return render_template('spending.html', title='Spending', form=form, spendings=spendings)
 
 @app.route("/spending/update/<int:spending_id>", methods=['GET', 'POST'])
@@ -211,6 +355,67 @@ def delete_spending(spending_id):
     flash('Your spending has been deleted!', 'success')
     return redirect(url_for('spending'))
 
+<<<<<<< HEAD
+=======
+@app.route("/goals", methods=['GET', 'POST'])
+@login_required
+def goals():
+    form = FinancialGoalForm()
+    if form.validate_on_submit():
+        goal = FinancialGoal(
+            name=form.name.data,
+            target_amount=form.target_amount.data,
+            current_amount=form.current_amount.data,  # Ensure current_amount is handled
+            due_date=form.due_date.data,
+            user_id=current_user.id
+        )
+        db.session.add(goal)
+        db.session.commit()
+        flash('Your financial goal has been created!', 'success')
+        print(f"Goal added: {goal}")
+        return redirect(url_for('goals'))
+    else:
+        print("Form validation failed")
+        print(form.errors)
+    goals = FinancialGoal.query.filter_by(user_id=current_user.id).all()
+    print(f"Goals queried: {goals}")
+    return render_template('goals.html', title='Financial Goals', form=form, goals=goals)
+
+
+@app.route("/goal/update/<int:goal_id>", methods=['GET', 'POST'])
+@login_required
+def update_goal(goal_id):
+    goal = FinancialGoal.query.get_or_404(goal_id)
+    if goal.user_id != current_user.id:
+        abort(403)
+    form = UpdateFinancialGoalForm()
+    if form.validate_on_submit():
+        goal.name = form.name.data
+        goal.target_amount = form.target_amount.data
+        goal.current_amount = form.current_amount.data  # Ensure current_amount is handled
+        goal.due_date = form.due_date.data
+        db.session.commit()
+        flash('Your goal has been updated!', 'success')
+        return redirect(url_for('goals'))
+    elif request.method == 'GET':
+        form.name.data = goal.name
+        form.target_amount.data = goal.target_amount
+        form.current_amount.data = goal.current_amount
+        form.due_date.data = goal.due_date
+    return render_template('update_goal.html', title='Update Goal', form=form, goal=goal)
+
+@app.route("/goal/delete/<int:goal_id>", methods=['POST'])
+@login_required
+def delete_goal(goal_id):
+    goal = FinancialGoal.query.get_or_404(goal_id)
+    if goal.user_id != current_user.id:
+        abort(403)
+    db.session.delete(goal)
+    db.session.commit()
+    flash('Your goal has been deleted!', 'success')
+    return redirect(url_for('goals'))
+
+>>>>>>> origin/newbranch
 @app.route('/create_link_token', methods=['POST'])
 @login_required
 def create_link_token():
@@ -244,8 +449,11 @@ def create_link_token():
         print(f"Exception when calling PlaidApi->link_token_create: {e}")
         return jsonify({'error': str(e)})
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> origin/newbranch
 @app.route('/exchange_public_token', methods=['POST'])
 @login_required
 def exchange_public_token():
@@ -280,8 +488,11 @@ def exchange_public_token():
         print(f"Exception when calling PlaidApi->item_public_token_exchange: {e}")
         return jsonify({'error': str(e)})
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> origin/newbranch
 @app.route('/transactions', methods=['GET'])
 @login_required
 def get_transactions():
@@ -346,6 +557,7 @@ def stocks():
             
     return render_template('stocks.html', symbol=symbol, graphJSON=graphJSON, form=form)
 
+<<<<<<< HEAD
 @app.route("/investments", methods=['GET', 'POST'])
 @login_required
 def investments():
@@ -392,5 +604,7 @@ def update_investments_prices():
     return jsonify({'message': 'Investment prices updated successfully'})
 
 
+=======
+>>>>>>> origin/newbranch
 if __name__ == '__main__':
     app.run(debug=True)

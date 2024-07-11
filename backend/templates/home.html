@@ -1,3 +1,27 @@
-{% extends "base.html" %}
-{% block title %}
+{% extends "base.html" %} {% block title %} Home {% endblock %} {% block content
+%}
+<div class="container">
+  <h1>Welcome, {{ current_user.username }}!</h1>
+  <div id="graph-div-pie" style="width: 45%; display: inline-block"></div>
+  <div id="graph-div-bar" style="width: 45%; display: inline-block"></div>
+  <div
+    id="graph-div-goal"
+    style="width: 90%; display: inline-block; margin-top: 20px"
+  ></div>
+  <h2>Budget Overview</h2>
+  <p>Total Budget: ${{ total_budget }}</p>
+  <p>Total Spending: ${{ total_spending }}</p>
+  <p>Remaining Budget: ${{ remaining_budget }}</p>
+</div>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script>
+  var graphJSON_pie = {{ graphJSON_pie | safe }};
+  Plotly.newPlot('graph-div-pie', graphJSON_pie);
+
+  var graphJSON_bar = {{ graphJSON_bar | safe }};
+  Plotly.newPlot('graph-div-bar', graphJSON_bar);
+
+  var graphJSON_goal = {{ graphJSON_goal | safe }};
+  Plotly.newPlot('graph-div-goal', graphJSON_goal);
+</script>
 {% endblock %}
