@@ -28,4 +28,4 @@ def get_user_response(user_message):
               {"role": "user", "content": user_message}
         ]
     )
-    return response.choices[0].message
+    return response.choices[0].message.content
