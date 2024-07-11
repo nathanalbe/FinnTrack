@@ -21,3 +21,4 @@ plotly==5.13.1
 alpha_vantage==2.3.1
 flask_migrate
 python-dotenv
+pandas
