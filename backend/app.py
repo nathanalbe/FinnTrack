@@ -36,11 +36,11 @@ proxied = FlaskBehindProxy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
-app.config['PLAID_CLIENT_ID'] = os.getenv('PLAID_CLIENT_ID')
-app.config['PLAID_SECRET'] = os.getenv('PLAID_SECRET')
-app.config['PLAID_ENV'] = os.getenv('PLAID_ENV')  # Change to 'development' or 'production' as needed
+app.config['PLAID_CLIENT_ID'] = '668d8cb09e60dd001a327cac'
+app.config['PLAID_SECRET'] = 'ec04391d0ba0333547cc2a2358aab0'
+app.config['PLAID_ENV'] = 'sandbox'  # Change to 'development' or 'production' as needed
 
-app.config['ALPHA_VANTAGE_API_KEY'] = 'your_alpha_vantage_api_key'
+app.config['ALPHA_VANTAGE_API_KEY'] = 'PY07EMA4LSHGSLIH'
 
 # Define your models
 class User(db.Model, UserMixin):
@@ -307,27 +307,34 @@ def get_transactions():
         return jsonify({'error': str(e)})
 
 
+def fetch_stock_data(symbol):
+    ts = TimeSeries(key=app.config['ALPHA_VANTAGE_API_KEY'], output_format='pandas')
+    data, meta_data = ts.get_daily(symbol=symbol, outputsize='compact')
+    data.reset_index(inplace=True)
+
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=data['date'], y=data['4. close'], mode='lines', name='Close'))
+    fig.update_layout(title=f'Daily Close Prices for {symbol}', xaxis_title='Date', yaxis_title='Price (USD)')
+    
+    graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+    return graphJSON
+
 @app.route("/stocks", methods=['GET', 'POST'])
-@login_required
 def stocks():
     form = StockSearchForm()
+    symbol = 'SPY'
+    graphJSON = fetch_stock_data(symbol)
+
     if form.validate_on_submit():
         symbol = form.symbol.data
         try:
-            ts = TimeSeries(key=app.config['ALPHA_VANTAGE_API_KEY'], output_format='pandas')
-            data, meta_data = ts.get_daily(symbol=symbol, outputsize='compact')
-            data.reset_index(inplace=True)
-            
-            fig = go.Figure()
-            fig.add_trace(go.Scatter(x=data['date'], y=data['4. close'], mode='lines', name='Close'))
-            fig.update_layout(title=f'Daily Close Prices for {symbol}', xaxis_title='Date', yaxis_title='Price (USD)')
-            
-            graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+            graphJSON = fetch_stock_data(symbol)
             return render_template('stocks.html', symbol=symbol, graphJSON=graphJSON, form=form)
         except Exception as e:
             flash('Error fetching stock data. Please check the symbol and try again.', 'danger')
-            return redirect(url_for('stock'))
-    return render_template('stocks.html', form=form)
+            return redirect(url_for('stocks'))
+            
+    return render_template('stocks.html', symbol=symbol, graphJSON=graphJSON, form=form)
 
 if __name__ == '__main__':
     app.run(debug=True)
