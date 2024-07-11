@@ -1,34 +1,114 @@
 {% extends "base.html" %}
 
 {% block content %}
-<!-- Display form for adding investments -->
-<form method="POST" action="{{ url_for('investments') }}">
-    {{ form.hidden_tag() }}
-    <!-- Form fields for adding investments -->
-    {{ form.symbol.label }} {{ form.symbol() }} <br>
-    {{ form.quantity.label }} {{ form.quantity() }} <br>
-    {{ form.purchase_price.label }} {{ form.purchase_price() }} <br>
-    {{ form.purchase_date.label }} {{ form.purchase_date() }} <br>
-    {{ form.submit() }}
-</form>
-<div class="container">
-    <h1>Investments</h1>
-    {% if investments %}
-        <ul>
-            {% for investment in investments %}
-                <li>
-                    {{ investment.symbol }} - {{ investment.quantity }} shares purchased on {{ investment.purchase_date }}.
-                    {% set current_price = get_current_price(investment.symbol) %}
-                    {% if current_price %}
-                        Market Value: ${{ investment.quantity * current_price }}
-                    {% else %}
-                        Market Value: Unavailable
-                    {% endif %}
-                </li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>No investments found.</p>
-    {% endif %}
+<style>
+  .form-container {
+    max-width: 600px;
+    margin: auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  .form-container form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .form-container label {
+    font-weight: bold;
+    color: #333;
+  }
+  .form-container input, .form-container button {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .form-container button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  .form-container button:hover {
+    background-color: #0056b3;
+  }
+  .container {
+    margin-top: 20px;
+    max-width: 800px;
+    margin: auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  .container h1 {
+    text-align: center;
+    color: #333;
+  }
+  .investments-list {
+    list-style: none;
+    padding: 0;
+  }
+  .investments-list li {
+    display: flex;
+    flex-direction: column;
+    padding: 15px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    transition: background-color 0.3s, box-shadow 0.3s;
+  }
+  .investments-list li:hover {
+    background-color: #f1f1f1;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  .investment-details {
+    color: #555;
+  }
+  .investment-market-value {
+    font-weight: bold;
+    color: #007bff;
+  }
+</style>
+
+<div class="form-container">
+  <!-- Display form for adding investments -->
+  <form method="POST" action="{{ url_for('investments') }}">
+      {{ form.hidden_tag() }}
+      <!-- Form fields for adding investments -->
+      <label for="symbol">{{ form.symbol.label }}</label> {{ form.symbol(class="form-control") }} 
+      <label for="quantity">{{ form.quantity.label }}</label> {{ form.quantity(class="form-control") }} 
+      <label for="purchase_price">{{ form.purchase_price.label }}</label> {{ form.purchase_price(class="form-control") }} 
+      <label for="purchase_date">{{ form.purchase_date.label }}</label> {{ form.purchase_date(class="form-control") }} 
+      {{ form.submit(class="btn btn-primary") }}
+  </form>
 </div>
-{% endblock%}
+
+<div class="container">
+  <h1>Investments</h1>
+  {% if investments %}
+      <ul class="investments-list">
+          {% for investment in investments %}
+              <li>
+                  <div class="investment-details">
+                      {{ investment.symbol }} - {{ investment.quantity }} shares purchased on {{ investment.purchase_date }}.
+                  </div>
+                  {% set current_price = get_current_price(investment.symbol) %}
+                  {% if current_price %}
+                      <div class="investment-market-value">Market Value: ${{ investment.quantity * current_price }}</div>
+                  {% else %}
+                      <div class="investment-market-value">Market Value: Unavailable</div>
+                  {% endif %}
+              </li>
+          {% endfor %}
+      </ul>
+  {% else %}
+      <p>No investments found.</p>
+  {% endif %}
+</div>
+{% endblock %}
