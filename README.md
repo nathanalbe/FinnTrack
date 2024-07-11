@@ -26,10 +26,7 @@ FinTrack is a personal finance management application designed to help users kee
 - SQLite
 
 **Frontend:**
-- HTML/CSS
-- ReactJS
-- VueJS
-- AngularJS
+- HTML/CSS/JS
 
 **APIs and Libraries:**
 - **Plaid:** For financial data aggregation and transactions. [Plaid Documentation](https://plaid.com/docs/)
