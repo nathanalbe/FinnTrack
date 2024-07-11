@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block content %}	
+<body>
+    <div id ="overall-container">
+        <div id="chat-container">
+            <!-- Chat messages will be displayed here -->
+            {% for message in chat_messages %}
+            <div>{{ message }}</div>
+            {% endfor %}
+        </div>
+        <form id="user-input-form">
+            <input type="text" id="user-input" placeholder="Type your message...">
+            <button type="submit">Send</button>
+        </form>
+    
+        <script>
+            document.getElementById('user-input-form').addEventListener('submit', function(event) {
+                event.preventDefault();
+                var userInput = document.getElementById('user-input').value;
+                
+                // GET: user types in the text field, that string 
+                fetch('/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ message: userInput })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Update chat UI with bot's response
+                    let chatContainer = document.getElementById('chat-container');
+                    let userMessageDiv = document.createElement('div');
+                    let botMessageDiv = document.createElement('div');
+                    
+                    userMessageDiv.textContent = `User: ${userInput}`;
+                    botMessageDiv.textContent = `Bot: ${data.message}`;
+
+                    
+                    chatContainer.appendChild(userMessageDiv);
+                    chatContainer.appendChild(botMessageDiv);
+                    
+                    // Clear user input field
+                    document.getElementById('user-input').value = '';
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            });
+        </script>
+    </div>
+</body>
+{% endblock %}
