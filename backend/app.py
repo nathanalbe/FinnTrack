@@ -38,11 +38,11 @@ proxied = FlaskBehindProxy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
-app.config['PLAID_CLIENT_ID'] = '668d8cb09e60dd001a327cac'
-app.config['PLAID_SECRET'] = 'ec04391d0ba0333547cc2a2358aab0'
+app.config['PLAID_CLIENT_ID'] = ''
+app.config['PLAID_SECRET'] = ''
 app.config['PLAID_ENV'] = 'sandbox'  # Change to 'development' or 'production' as needed
 
-app.config['ALPHA_VANTAGE_API_KEY'] = 'PY07EMA4LSHGSLIH'
+app.config['ALPHA_VANTAGE_API_KEY'] = ''
 
 # Define your models
 class User(db.Model, UserMixin):
