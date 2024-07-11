@@ -68,6 +68,7 @@ FinTrack is a personal finance management application designed to help users kee
         PLAID_SECRET='your_plaid_secret'
         PLAID_ENV='sandbox'
         ALPHA_VANTAGE_API_KEY='your_alpha_vantage_api_key'
+        OPENAI_API_KEY='your_openai_api_key'
         ```
 
 5. Initialize the database:
@@ -87,6 +88,7 @@ FinTrack is a personal finance management application designed to help users kee
 - **Budget Management:** Users can create, update, and delete budget items.
 - **Spending Management:** Users can add, update, and delete spending entries.
 - **Stock Market:** Users can view the stock market graph and their investments.
+- **Chat**: Users can ask financial queries to the AI chatbot.
 
 ### Contributing
 
