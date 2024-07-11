@@ -201,6 +201,7 @@ def chatting():
         bot_msg = get_user_response(user_msg)
         response = {'message': bot_msg}
         return jsonify(response), 200
+    
 @app.route("/register", methods=['GET', 'POST'])
 def register():
     form = RegistrationForm()
