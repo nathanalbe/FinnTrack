@@ -25,8 +25,6 @@ from forms import RegistrationForm, LoginForm, BudgetForm, SpendingForm, UpdateB
 from openaibot import get_user_response
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
-
-
 import os
 
 
