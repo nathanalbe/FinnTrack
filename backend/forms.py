@@ -52,3 +52,11 @@ class UpdateFinancialGoalForm(FlaskForm):
 class StockSearchForm(FlaskForm):
     symbol = StringField('Stock Symbol', validators=[DataRequired(), Length(min=1, max=10)])
     submit = SubmitField('Search')
+
+class InvestmentForm(FlaskForm):
+    symbol = StringField('Stock Symbol', validators=[DataRequired()])
+    quantity = IntegerField('Quantity', validators=[DataRequired()])
+    purchase_price = FloatField('Purchase Price', validators=[DataRequired()])
+    purchase_date = DateField('Purchase Date', validators=[DataRequired()])
+    submit = SubmitField('Add Investment')
+
