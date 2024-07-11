@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 import plotly
 import plotly.graph_objs as go
 import json
-from forms import RegistrationForm, LoginForm, BudgetForm, SpendingForm, UpdateBudgetForm, UpdateSpendingForm
+from forms import RegistrationForm, LoginForm, BudgetForm, SpendingForm, UpdateBudgetForm, UpdateSpendingForm, StockSearchForm
 from openaibot import get_user_response
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
@@ -324,42 +324,27 @@ def get_transactions():
         return jsonify({'error': str(e)})
 
 
-@app.route("/stocks")
+@app.route("/stocks", methods=['GET', 'POST'])
 @login_required
 def stocks():
-    # Initialize the Alpha Vantage API client
-    ts = TimeSeries(key=app.config['ALPHA_VANTAGE_API_KEY'], output_format='json')
-
-    # Get stock data for the S&P 500 (symbol: 'SPY')
-    data, meta_data = ts.get_intraday(symbol='SPY', interval='1min', outputsize='compact')
-
-    # Extract the time series and closing prices
-    times = list(data.keys())
-    closing_prices = [float(data[time]['4. close']) for time in times]
-
-    # Reverse the order to have the most recent time on the right
-    times.reverse()
-    closing_prices.reverse()
-
-    # Reduce the number of x-axis labels
-    reduced_times = times[::10]  # Display every 10th label
-    reduced_closing_prices = closing_prices[::10]
-
-    # Create a Plotly graph
-    fig = go.Figure()
-    fig.add_trace(go.Scatter(x=reduced_times, y=reduced_closing_prices, mode='lines', name='S&P 500'))
-    fig.update_layout(
-        title='S&P 500 Price',
-        xaxis_title='Time',
-        yaxis_title='Price',
-        xaxis=dict(type='category', tickangle=-45),
-        yaxis=dict(tickformat='.2f')
-    )
-
-    # Convert the plotly figure to JSON for rendering in the template
-    graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
-
-    return render_template('stocks.html', graphJSON=graphJSON)
+    form = StockSearchForm()
+    if form.validate_on_submit():
+        symbol = form.symbol.data
+        try:
+            ts = TimeSeries(key=app.config['ALPHA_VANTAGE_API_KEY'], output_format='pandas')
+            data, meta_data = ts.get_daily(symbol=symbol, outputsize='compact')
+            data.reset_index(inplace=True)
+            
+            fig = go.Figure()
+            fig.add_trace(go.Scatter(x=data['date'], y=data['4. close'], mode='lines', name='Close'))
+            fig.update_layout(title=f'Daily Close Prices for {symbol}', xaxis_title='Date', yaxis_title='Price (USD)')
+            
+            graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+            return render_template('stocks.html', symbol=symbol, graphJSON=graphJSON, form=form)
+        except Exception as e:
+            flash('Error fetching stock data. Please check the symbol and try again.', 'danger')
+            return redirect(url_for('stock'))
+    return render_template('stocks.html', form=form)
 
 if __name__ == '__main__':
     app.run(debug=True)
