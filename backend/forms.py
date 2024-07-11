@@ -34,3 +34,7 @@ class UpdateSpendingForm(FlaskForm):
     description = StringField('Description', validators=[DataRequired()])
     amount = FloatField('Amount', validators=[DataRequired()])
     submit = SubmitField('Update Spending')
+    
+class StockSearchForm(FlaskForm):
+    symbol = StringField('Stock Symbol', validators=[DataRequired(), Length(min=1, max=10)])
+    submit = SubmitField('Search')
