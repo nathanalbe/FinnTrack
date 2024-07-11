@@ -1,11 +1,6 @@
 from flask_wtf import FlaskForm
-<<<<<<< HEAD
 from wtforms import StringField, PasswordField, SubmitField, BooleanField, FloatField, IntegerField, DateField
-from wtforms.validators import DataRequired, Length, Email, EqualTo
-=======
-from wtforms import StringField,DecimalField,DateField, PasswordField, SubmitField, BooleanField, FloatField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, NumberRange
->>>>>>> origin/newbranch
 
 class RegistrationForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired(), Length(min=2, max=20)])
@@ -39,8 +34,6 @@ class UpdateSpendingForm(FlaskForm):
     description = StringField('Description', validators=[DataRequired()])
     amount = FloatField('Amount', validators=[DataRequired()])
     submit = SubmitField('Update Spending')
-<<<<<<< HEAD
-=======
 
 class FinancialGoalForm(FlaskForm):
     name = StringField('Goal Name', validators=[DataRequired()])
@@ -55,12 +48,10 @@ class UpdateFinancialGoalForm(FlaskForm):
     current_amount = DecimalField('Current Amount', validators=[DataRequired(), NumberRange(min=0)])
     due_date = DateField('Due Date', validators=[DataRequired()])
     submit = SubmitField('Update Goal')
->>>>>>> origin/newbranch
     
 class StockSearchForm(FlaskForm):
     symbol = StringField('Stock Symbol', validators=[DataRequired(), Length(min=1, max=10)])
     submit = SubmitField('Search')
-<<<<<<< HEAD
 
 class InvestmentForm(FlaskForm):
     symbol = StringField('Stock Symbol', validators=[DataRequired()])
@@ -69,5 +60,3 @@ class InvestmentForm(FlaskForm):
     purchase_date = DateField('Purchase Date', validators=[DataRequired()])
     submit = SubmitField('Add Investment')
 
-=======
->>>>>>> origin/newbranch
