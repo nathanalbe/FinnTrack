@@ -103,12 +103,12 @@ with app.app_context():
 
 @login_manager.user_loader
 def load_user(user_id):
-<<<<<<< HEAD
     return db.session.get(User, int(user_id))
 
 
 @app.route("/")
 @app.route("/home")
+@login_required
 def home():
     budgets = Budget.query.filter_by(owner=current_user).all()
     spendings = Spending.query.filter_by(spender=current_user).all()
@@ -188,6 +188,7 @@ def home():
                            total_budget=total_budget, 
                            total_spending=total_spending, 
                            remaining_budget=remaining_budget)
+
 @app.route("/chat")
 @login_required
 def chat():
