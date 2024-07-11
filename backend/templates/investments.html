@@ -16,11 +16,15 @@
     {% if investments %}
         <ul>
             {% for investment in investments %}
-                {% if investment.quantity == 1 %}
-                    <li>{{ investment.symbol }} - {{ investment.quantity }} share purchased on {{ investment.purchase_date }}</li>
-                {% else %}
-                    <li>{{ investment.symbol }} - {{ investment.quantity }} shares purchased on {{ investment.purchase_date }}</li>
-                {% endif %}
+                <li>
+                    {{ investment.symbol }} - {{ investment.quantity }} shares purchased on {{ investment.purchase_date }}.
+                    {% set current_price = get_current_price(investment.symbol) %}
+                    {% if current_price %}
+                        Market Value: ${{ investment.quantity * current_price }}
+                    {% else %}
+                        Market Value: Unavailable
+                    {% endif %}
+                </li>
             {% endfor %}
         </ul>
     {% else %}

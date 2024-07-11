@@ -7,6 +7,7 @@ from flask_bcrypt import Bcrypt
 from flask_behind_proxy import FlaskBehindProxy
 from flask_login import LoginManager, login_user, logout_user, login_required, UserMixin, current_user
 import plaid
+import requests
 from plaid.api import plaid_api
 from plaid.model import link_token_create_request, link_token_create_request_user, products, country_code, item_public_token_exchange_request, transactions_get_request, transactions_get_request_options
 from plaid.configuration import Configuration
@@ -36,11 +37,11 @@ proxied = FlaskBehindProxy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
-app.config['PLAID_CLIENT_ID'] = '668d8cb09e60dd001a327cac'
-app.config['PLAID_SECRET'] = 'c04391d0ba0333547cc2a2358aab0'
+app.config['PLAID_CLIENT_ID'] = ''
+app.config['PLAID_SECRET'] = ''
 app.config['PLAID_ENV'] = 'sandbox'  # Change to 'development' or 'production' as needed
 
-app.config['ALPHA_VANTAGE_API_KEY'] = 'PY07EMA4LSHGSLIH'
+app.config['ALPHA_VANTAGE_API_KEY'] = ''
 
 # Define your models
 class User(db.Model, UserMixin):
@@ -79,7 +80,7 @@ class Investment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     symbol = db.Column(db.String(10), nullable=False)  # Stock symbol
-    quantity = db.Column(db.Integer, nullable=False)
+    quantity = db.Column(db.Numeric(precision=10, scale=2), nullable=False)
     purchase_price = db.Column(db.Float, nullable=False)
     purchase_date = db.Column(db.Date, nullable=False)
 
@@ -362,7 +363,33 @@ def investments():
         flash('Investment added!', 'success')
         return redirect(url_for('home'))  # Redirect to home page after adding
     investments = Investment.query.filter_by(user_id=current_user.id).all()
-    return render_template('investments.html', title='Investments', form=form, investments=investments)
+    return render_template('investments.html', title='Investments', form=form, investments=investments, get_current_price=get_current_price)
+
+def get_current_price(symbol):
+    # Implement function to fetch current price from Alpha Vantage API
+    # Example implementation using requests library
+    import requests
+
+    api_key = app.config['ALPHA_VANTAGE_API_KEY']  # Replace with your actual API key
+    url = f'https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol={symbol}&apikey={api_key}'
+
+    response = requests.get(url)
+    data = response.json()
+
+    if 'Global Quote' in data:
+        return data['Global Quote']['05. price']  # Adjust according to Alpha Vantage API response structure
+    else:
+        return None  # Handle error cases
+
+@app.route('/update_investments_prices')
+def update_investments_prices():
+    investments = Investment.query.all()
+    for investment in investments:
+        current_price = get_current_price(investment.symbol)
+        if current_price is not None:
+            investment.current_price = current_price
+    db.session.commit()
+    return jsonify({'message': 'Investment prices updated successfully'})
 
 
 if __name__ == '__main__':
