@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Stock Data{% endblock %}
+
+{% block content %}
+<div class="container">
+  <h1>Search for Stock Data</h1>
+  <form method="post">
+    {{ form.hidden_tag() }}
+    <div class="form-group">
+      {{ form.symbol.label(class="form-control-label") }}
+      {{ form.symbol(class="form-control", placeholder="Enter stock symbol") }}
+    </div>
+    <div class="form-group">
+      {{ form.submit(class="btn btn-primary") }}
+    </div>
+  </form>
+  {% if graphJSON %}
+  <h2>Daily Close Prices for {{ symbol }}</h2>
+  <div id="chart"></div>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <script>
+    var graphs = {{ graphJSON | safe }};
+    Plotly.newPlot('chart', graphs.data, graphs.layout);
+  </script>
+  {% endif %}
+</div>
+{% endblock %}
