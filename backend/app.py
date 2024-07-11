@@ -89,7 +89,6 @@ def load_user(user_id):
 def home():
     return render_template('home.html')
 
-# chat_messages = [] # to be stored in a database in futureplans
 
 @app.route("/chat")
 @login_required
@@ -99,16 +98,11 @@ def chat():
 @app.route("/chat", methods=['POST'])
 @login_required
 def chatting():
-    # global chat_messages
     if request.is_json:
         user_msg = request.json.get('message', '')
         bot_msg = get_user_response(user_msg)
-        # chat_messages.append(f"User: {user_msg}")
-        # chat_messages.append(f"Bot: {bot_msg}")
         response = {'message': bot_msg}
-        # response ={'message': 'Echo ' + message}
         return jsonify(response), 200
-    # return bot_msg
 
 @app.route("/register", methods=['GET', 'POST'])
 def register():
