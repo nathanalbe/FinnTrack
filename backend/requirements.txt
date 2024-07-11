@@ -22,4 +22,4 @@ alpha_vantage==2.3.1
 flask_migrate
 python-dotenv
 pandas
-openai==24.0
+openai==1.24.0
