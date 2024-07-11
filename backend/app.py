@@ -21,6 +21,7 @@ import plotly
 import plotly.graph_objs as go
 import json
 from forms import RegistrationForm, LoginForm, BudgetForm, SpendingForm, UpdateBudgetForm, UpdateSpendingForm, StockSearchForm, InvestmentForm, FinancialGoalForm, UpdateFinancialGoalForm
+from openaibot import get_user_response
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
 import os
@@ -187,7 +188,20 @@ def home():
                            total_budget=total_budget, 
                            total_spending=total_spending, 
                            remaining_budget=remaining_budget)
+@app.route("/chat")
+@login_required
+def chat():
+    return render_template('cb.html')
 
+@app.route("/chat", methods=['POST'])
+@login_required
+def chatting():
+    if request.is_json:
+        user_msg = request.json.get('message', '')
+        bot_msg = get_user_response(user_msg)
+        response = {'message': bot_msg}
+        return jsonify(response), 200
+    
 @app.route("/register", methods=['GET', 'POST'])
 def register():
     form = RegistrationForm()
