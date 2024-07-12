@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 
 # Initializing OpenAI client
 load_dotenv()
-client = OpenAI() # by default, uses os.environ.get("OPENAI_API_KEY") 
+client = OpenAI(api_key='sk-proj-GJKmMyxkbzzVotxoQyIpT3BlbkFJFJWahEjcR3boYWlevixv') # by default, uses os.environ.get("OPENAI_API_KEY") 
                   # to assign api_key to the client variable
 
 # Function to get AI's response
